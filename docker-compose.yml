@@ -1,0 +1,49 @@
+version: "3.8"
+services:
+    # Backend
+    backend:
+        image: 24520115/stack-be:v1
+        container_name: stack-backend
+        restart: always
+        environment:
+            - PORT=${APP_PORT}
+            - DB_HOST=${DB_HOST}
+            - DB_USER=${DB_USER}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_NAME=${DB_NAME}
+        depends_on:
+            - mysqldb
+        networks:
+            - app-network
+
+    # Frontend
+    frontend:
+        image: 24520115/stack-fe:v1
+        container_name: stack-frontend
+        restart: always
+        ports:
+            - "${WEB_PORT}:80"
+        depends_on:
+            - backend
+        networks:
+            - app-network
+
+    # Database
+    mysqldb:
+        image: 24520115/stack-db:v1
+        container_name: stack-db
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+        volumes:
+            - db_data:/var/lib/mysql
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
+
+volumes:
+    db_data:
